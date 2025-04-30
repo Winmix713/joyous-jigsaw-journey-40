@@ -1,6 +1,7 @@
+
 import { useEffect } from 'react';
 import { useAppStore } from '@/lib/store';
-import Header from '@/components/Header';
+import Navbar from '@/components/Navbar';
 import MainDashboard from '@/components/MainDashboard';
 import BetSlip from '@/components/BetSlip';
 import FooterSection from '@/components/FooterSection';
@@ -38,11 +39,11 @@ function App() {
         style={{ backgroundImage: backgroundGradient }}
       />
       
-      {/* Fejléc */}
-      <Header />
+      {/* Navigációs sáv */}
+      <Navbar />
       
       {/* Fő tartalom - Külön ErrorBoundary-k közé ágyazva a komponensek */}
-      <main className="flex-grow">
+      <main className="flex-grow pt-20">
         <ErrorBoundary fallbackRender={({ error }) => (
           <div className="p-4 m-4 border border-red-500 rounded bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-200">
             <h3 className="font-semibold mb-2">Dashboard betöltési hiba</h3>
