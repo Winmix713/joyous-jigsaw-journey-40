@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { CreditCard, X, AlertTriangle, Clock, Sparkles } from "lucide-react";
 import { useAppStore } from "@/lib/store";
@@ -119,7 +120,7 @@ export default function BetSlip() {
         toast({
           title: "Bet Placed Successfully!",
           description: `You bet ${currentBet.amount} points on ${selectedParticipant?.name}.`,
-          variant: "success",
+          variant: "default", // Changed from "success" to "default" as "success" is not a supported variant
         });
         setIsOpen(false);
       } catch (error) {
@@ -137,7 +138,6 @@ export default function BetSlip() {
   const clearBet = () => {
     if (currentBet) {
       setCurrentBet({
-        ...currentBet,
         selectedParticipantId: null
       });
     }

@@ -15,7 +15,7 @@ interface GameCardProps {
 export default function GameCard({ game }: GameCardProps) {
   const { currentBet, setCurrentBet } = useAppStore();
   const [isExpanded, setIsExpanded] = useState(false);
-  const [betAmount, setBetAmount] = useState(game.minBet ?? 1); // 🛡 Default to 1 if minBet missing
+  const [betAmount, setBetAmount] = useState(game.minBet ?? 1); // Default to 1 if minBet missing
   
   const isSelected = currentBet?.gameId === game.id;
   const startTime = new Date(game.startTime);
@@ -37,10 +37,9 @@ export default function GameCard({ game }: GameCardProps) {
     setBetAmount(clampedAmount);
 
     if (isSelected) {
-      setCurrentBet((prevBet) => ({
-        ...prevBet,
+      setCurrentBet({
         amount: clampedAmount,
-      }));
+      });
     }
   };
 

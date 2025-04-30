@@ -1,3 +1,4 @@
+
 export interface User {
   id: string;
   username: string;
@@ -92,4 +93,32 @@ export interface Tipster {
   timestamp: string; // ISO string
   successRate: number;
   expertise: string[];
+}
+
+export interface Game {
+  id: string;
+  title: string;
+  description: string;
+  image?: string;
+  status: 'upcoming' | 'live' | 'completed';
+  startTime: string; // ISO string
+  endTime?: string;
+  category: 'sport' | 'esport' | string;
+  participants: {
+    id: string;
+    name: string;
+    isPopular?: boolean;
+  }[];
+  odds: Record<string, number>;
+  minBet: number;
+  maxBet: number;
+}
+
+export interface RecentWinner {
+  id: string;
+  username: string;
+  gameTitle: string;
+  timestamp: string;
+  amount: number;
+  winningAmount: number;
 }
