@@ -45,6 +45,13 @@ export interface Game {
   maxBet: number;
 }
 
+export interface Tipster {
+  id: string;
+  username: string;
+  winRate: number;
+  expertise: string[];
+}
+
 export interface Tip {
   id: string;
   title: string;
@@ -65,12 +72,7 @@ export interface Tip {
   };
   analysis: string;
   category: 'football' | 'basketball' | 'tennis' | 'esports';
-  tipster: {
-    id: string;
-    username: string;
-    winRate: number;
-    expertise: string[];
-  };
+  tipster: Tipster;
   stats: {
     likes: number;
     comments: number;

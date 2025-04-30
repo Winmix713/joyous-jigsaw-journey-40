@@ -1,9 +1,9 @@
 
 import { Inter } from "next/font/google";
 import type { Metadata } from "next";
-import { Navbar } from "@/components/navbar";
+import { Navbar } from "@/components/Navbar"; // Corrected casing
 import { Toaster } from "@/components/ui/toaster";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar-fixed";
 import { StoreProvider } from "@/lib/store-provider";
 import "@/styles/globals.css";
 

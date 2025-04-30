@@ -29,7 +29,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     // You can also log this to an error reporting service
   }
 
-  render() {
+  render(): React.ReactNode {
     if (this.state.hasError) {
       if (typeof this.props.fallbackUI === 'function' && this.state.error) {
         return this.props.fallbackUI({ error: this.state.error });
@@ -40,3 +40,18 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     return this.props.children;
   }
 }
+
+// Create a client component wrapper for ErrorBoundary to use in pages
+export const ErrorBoundaryClient = ({
+  children,
+  fallback,
+}: {
+  children: React.ReactNode;
+  fallback: React.ReactNode;
+}) => {
+  return (
+    <ErrorBoundary fallbackUI={fallback}>
+      {children}
+    </ErrorBoundary>
+  );
+};
