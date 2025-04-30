@@ -1,7 +1,7 @@
 
 import type { Config } from "tailwindcss";
 
-export default {
+const config = {
 	darkMode: ["class"],
 	content: [
 		"./pages/**/*.{ts,tsx}",
@@ -54,22 +54,22 @@ export default {
 					foreground: 'hsl(var(--card-foreground))'
 				},
 				sidebar: {
-					DEFAULT: 'hsl(var(--sidebar-background))',
-					foreground: 'hsl(var(--sidebar-foreground))',
-					primary: 'hsl(var(--sidebar-primary))',
-					'primary-foreground': 'hsl(var(--sidebar-primary-foreground))',
-					accent: 'hsl(var(--sidebar-accent))',
-					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
-					border: 'hsl(var(--sidebar-border))',
-					ring: 'hsl(var(--sidebar-ring))'
+					DEFAULT: 'hsl(var(--sidebar-background, var(--background)))',
+					foreground: 'hsl(var(--sidebar-foreground, var(--foreground)))',
+					primary: 'hsl(var(--sidebar-primary, var(--primary)))',
+					'primary-foreground': 'hsl(var(--sidebar-primary-foreground, var(--primary-foreground)))',
+					accent: 'hsl(var(--sidebar-accent, var(--accent)))',
+					'accent-foreground': 'hsl(var(--sidebar-accent-foreground, var(--accent-foreground)))',
+					border: 'hsl(var(--sidebar-border, var(--border)))',
+					ring: 'hsl(var(--sidebar-ring, var(--ring)))'
 				},
 				gaming: {
-					'blue': '#2563EB',
-					'blue-dark': '#1E40AF',
-					'dark': '#0F172A',
-					'darker': '#060B17',
-					'gray': '#1E293B',
-					'gray-light': '#334155'
+					'blue': 'var(--gaming-blue)',
+					'blue-dark': 'var(--gaming-blue-dark)',
+					'dark': 'var(--gaming-dark)',
+					'darker': 'var(--gaming-darker)',
+					'gray': 'var(--gaming-gray)',
+					'gray-light': 'var(--gaming-gray-light)'
 				}
 			},
 			borderRadius: {
@@ -93,13 +93,37 @@ export default {
 					to: {
 						height: '0'
 					}
+				},
+				'fade-in': {
+					from: {
+						opacity: '0',
+						transform: 'translateY(10px)'
+					},
+					to: {
+						opacity: '1',
+						transform: 'translateY(0)'
+					}
+				},
+				'fade-out': {
+					from: {
+						opacity: '1',
+						transform: 'translateY(0)'
+					},
+					to: {
+						opacity: '0',
+						transform: 'translateY(10px)'
+					}
 				}
 			},
 			animation: {
 				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
+				'accordion-up': 'accordion-up 0.2s ease-out',
+				'fade-in': 'fade-in 0.3s ease-out',
+				'fade-out': 'fade-out 0.3s ease-out',
 			}
 		}
 	},
 	plugins: [require("tailwindcss-animate")],
 } satisfies Config;
+
+export default config;

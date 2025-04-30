@@ -1,151 +1,89 @@
 
-import { create } from 'zustand';
-import { Tip, Notification, User, TipHistory, Tipster, Game, RecentWinner } from './types';
-import { mockTips, mockNotifications, mockTipsters } from './mock-data';
+"use client";
 
-interface CurrentBet {
-  gameId: string | null;
-  selectedParticipantId: string | null;
-  amount: number;
-}
+import { create } from "zustand";
+import { format, addMinutes } from "date-fns";
+import { AppState } from "@/lib/types";
+import { toast } from "@/hooks/use-toast";
 
-interface AppState {
-  userStats: User & { notifications: Notification[] };
-  tips: Tip[];
-  games: Game[];
-  recentWinners: RecentWinner[];
-  currentTip: {
-    tipId: string | null;
-    stake: number;
-    selectedPrediction: string | null;
-  };
-  currentBet: CurrentBet;
-  tipHistory: TipHistory[];
-  topTipsters: Tipster[];
-  isDarkMode: boolean;
-  isAuthenticated: boolean;
+// Generate mock data
+const generateMockGames = () => {
+  const categories = ["sport", "esport"];
+  const statuses = ["upcoming", "live"];
+  const titles = [
+    "FC Barcelona vs Real Madrid",
+    "Lakers vs Warriors",
+    "Cloud9 vs Team Liquid",
+    "Astralis vs Natus Vincere",
+    "Manchester United vs Liverpool",
+  ];
 
-  // Actions
-  markNotificationAsRead: (id: string) => void;
-  setCurrentTip: (tip: Partial<AppState['currentTip']>) => void;
-  setCurrentBet: (bet: Partial<CurrentBet>) => void;
-  followTip: () => void;
-  placeBet: () => void;
-  toggleDarkMode: () => void;
-  login: () => void;
-  logout: () => void;
-}
-
-// Some mock games data for now
-const mockGames: Game[] = [
-  {
-    id: 'game1',
-    title: 'Champions League: Barcelona vs Real Madrid',
-    description: 'El Clasico - Champions League Semi-Final',
-    image: 'https://picsum.photos/800/400?random=1',
-    status: 'live',
-    startTime: new Date(Date.now() - 30 * 60000).toISOString(),
-    category: 'sport',
+  return Array.from({ length: 6 }, (_, i) => ({
+    id: `game-${i + 1}`,
+    title: titles[i % titles.length],
+    description: `Exciting match between top teams`,
+    image: "/placeholder.jpg",
+    status: statuses[i % statuses.length] as "upcoming" | "live" | "completed",
+    startTime: format(addMinutes(new Date(), i * 30), "yyyy-MM-dd'T'HH:mm:ss"),
+    category: categories[i % categories.length],
     participants: [
-      { id: 'barca', name: 'FC Barcelona', isPopular: true },
-      { id: 'madrid', name: 'Real Madrid' }
+      {
+        id: `team-${i * 2 + 1}`,
+        name: titles[i % titles.length].split(" vs ")[0],
+      },
+      {
+        id: `team-${i * 2 + 2}`,
+        name: titles[i % titles.length].split(" vs ")[1],
+      },
     ],
-    odds: { barca: 2.10, madrid: 3.40 },
+    odds: {
+      [`team-${i * 2 + 1}`]: 1.5 + i * 0.2,
+      [`team-${i * 2 + 2}`]: 2.5 - i * 0.1,
+    },
     minBet: 10,
-    maxBet: 1000
-  },
-  {
-    id: 'game2',
-    title: 'NBA Finals: Lakers vs Celtics',
-    description: 'Game 7 - Championship Decider',
-    image: 'https://picsum.photos/800/400?random=2',
-    status: 'upcoming',
-    startTime: new Date(Date.now() + 2 * 24 * 60 * 60000).toISOString(),
-    category: 'sport',
-    participants: [
-      { id: 'lakers', name: 'Los Angeles Lakers' },
-      { id: 'celtics', name: 'Boston Celtics', isPopular: true }
-    ],
-    odds: { lakers: 1.95, celtics: 1.85 },
-    minBet: 5,
-    maxBet: 500
-  },
-  {
-    id: 'game3',
-    title: 'CS:GO Tournament Finals: NaVi vs FaZe',
-    description: 'ESL Pro League Season 16 Finals',
-    image: 'https://picsum.photos/800/400?random=3',
-    status: 'upcoming',
-    startTime: new Date(Date.now() + 12 * 60 * 60000).toISOString(),
-    category: 'esport',
-    participants: [
-      { id: 'navi', name: 'Natus Vincere', isPopular: true },
-      { id: 'faze', name: 'FaZe Clan' }
-    ],
-    odds: { navi: 1.75, faze: 2.05 },
-    minBet: 10,
-    maxBet: 800
-  }
-];
+    maxBet: 1000,
+  }));
+};
 
-// Mock recent winners data
-const mockRecentWinners: RecentWinner[] = [
-  {
-    id: 'win1',
-    username: 'SportsMaster',
-    gameTitle: 'Premier League: Liverpool vs Man City',
-    timestamp: new Date(Date.now() - 15 * 60000).toISOString(),
-    amount: 100,
-    winningAmount: 285
-  },
-  {
-    id: 'win2',
-    username: 'BettingKing',
-    gameTitle: 'Wimbledon Final: Djokovic vs Federer',
-    timestamp: new Date(Date.now() - 45 * 60000).toISOString(),
-    amount: 200,
-    winningAmount: 360
-  },
-  {
-    id: 'win3',
-    username: 'LuckyGamer',
-    gameTitle: 'LoL World Championship',
-    timestamp: new Date(Date.now() - 120 * 60000).toISOString(),
-    amount: 50,
-    winningAmount: 175
-  }
-];
+const generateRecentWinners = () => {
+  const usernames = ["johndoe", "alice92", "sportsmaster", "gambler44", "luckyguy"];
+  const games = ["FC Barcelona vs Real Madrid", "Lakers vs Warriors", "Cloud9 vs Team Liquid"];
 
-export const useAppStore = create<AppState>((set, get) => ({
+  return Array.from({ length: 5 }, (_, i) => ({
+    id: `winner-${i + 1}`,
+    username: usernames[i % usernames.length],
+    gameTitle: games[i % games.length],
+    timestamp: format(addMinutes(new Date(), -i * 15), "yyyy-MM-dd'T'HH:mm:ss"),
+    amount: 100 + i * 50,
+    winningAmount: (100 + i * 50) * (1.5 + i * 0.3),
+  }));
+};
+
+export const useAppStore = create<AppState>((set) => ({
+  isDarkMode: true,
+  toggleDarkMode: () => set((state) => ({ isDarkMode: !state.isDarkMode })),
+  
   userStats: {
-    id: '1',
-    username: 'TipMaster',
     points: 1250,
     winRate: 68,
-    totalTips: 42,
-    successfulTips: 28,
-    followers: 156,
-    expertise: ['Football', 'NBA'],
-    notifications: mockNotifications,
+    notifications: [
+      {
+        id: "notif-1",
+        title: "Nyeremény érkezett",
+        message: "Gratulálunk! Megnyerted a fogadásod a Barcelona vs Real Madrid meccsen.",
+        timestamp: format(addMinutes(new Date(), -30), "yyyy-MM-dd'T'HH:mm:ss"),
+        read: false,
+      },
+      {
+        id: "notif-2",
+        title: "Új promóció",
+        message: "500 pont bónusz minden új felhasználónak!",
+        timestamp: format(addMinutes(new Date(), -120), "yyyy-MM-dd'T'HH:mm:ss"),
+        read: true,
+      },
+    ],
   },
-  tips: mockTips,
-  games: mockGames,
-  recentWinners: mockRecentWinners,
-  currentTip: {
-    tipId: null,
-    stake: 100,
-    selectedPrediction: null,
-  },
-  currentBet: {
-    gameId: null,
-    selectedParticipantId: null,
-    amount: 100,
-  },
-  tipHistory: [],
-  topTipsters: mockTipsters,
-  isDarkMode: true,
-  isAuthenticated: true,
-
+  
   markNotificationAsRead: (id) =>
     set((state) => ({
       userStats: {
@@ -155,101 +93,66 @@ export const useAppStore = create<AppState>((set, get) => ({
         ),
       },
     })),
-
-  setCurrentTip: (tip) =>
-    set((state) => ({
-      currentTip: { ...state.currentTip, ...tip },
-    })),
-
-  setCurrentBet: (bet) =>
-    set((state) => ({
-      currentBet: { ...state.currentBet, ...bet },
-    })),
-
-  followTip: () => {
-    const { currentTip, tips, userStats, tipHistory } = get();
-    const { tipId, stake, selectedPrediction } = currentTip;
-
-    if (!tipId || !selectedPrediction || stake <= 0) {
-      console.warn('Invalid tip placement attempt');
-      return;
-    }
-
-    const tip = tips.find((t) => t.id === tipId);
-    if (!tip) {
-      console.warn('Tip not found');
-      return;
-    }
-
-    const newHistoryItem: TipHistory = {
-      id: `tip-${Date.now()}`,
-      tipId,
-      userId: userStats.id,
-      stake,
-      prediction: selectedPrediction,
-      odds: tip.prediction.odds,
-      status: 'pending',
-      placedAt: new Date().toISOString(),
-      potentialReturn: stake * tip.prediction.odds,
-    };
-
-    set({
-      tipHistory: [newHistoryItem, ...tipHistory],
-      userStats: {
-        ...userStats,
-        points: userStats.points - stake,
-      },
-      currentTip: {
-        tipId: null,
-        stake: 100,
-        selectedPrediction: null,
-      },
-    });
+  
+  games: generateMockGames(),
+  recentWinners: generateRecentWinners(),
+  
+  currentBet: {
+    gameId: undefined,
+    selectedParticipantId: undefined,
+    amount: 10,
   },
-
-  placeBet: () => {
-    const { currentBet, userStats, games } = get();
-    
-    if (!currentBet.gameId || !currentBet.selectedParticipantId || currentBet.amount <= 0) {
-      console.warn('Invalid bet placement attempt');
-      return;
-    }
-    
-    const game = games.find((g) => g.id === currentBet.gameId);
-    if (!game) {
-      console.warn('Game not found');
-      return;
-    }
-    
-    // Deduct points from user
-    set({
-      userStats: {
-        ...userStats,
-        points: userStats.points - currentBet.amount,
-      },
-      // Reset current bet after placement
-      currentBet: {
-        gameId: null,
-        selectedParticipantId: null,
-        amount: 100,
-      },
-    });
-    
-    console.log('Bet placed successfully', { currentBet, game });
-  },
-
-  toggleDarkMode: () =>
+  
+  setCurrentBet: (data) =>
     set((state) => ({
-      isDarkMode: !state.isDarkMode,
+      currentBet: { ...state.currentBet, ...data },
     })),
-
-  login: () =>
-    set(() => ({
-      isAuthenticated: true,
-    })),
-
-  logout: () =>
-    set(() => ({
-      isAuthenticated: false,
-    })),
+    
+  placeBet: () =>
+    set((state) => {
+      const { currentBet, games } = state;
+      
+      if (!currentBet.gameId || !currentBet.selectedParticipantId) {
+        toast({
+          title: "Hiba történt",
+          description: "Kérjük válassz ki egy fogadást",
+          variant: "destructive",
+        });
+        return state;
+      }
+      
+      const game = games.find((g) => g.id === currentBet.gameId);
+      if (!game) {
+        toast({
+          title: "Hiba történt",
+          description: "Nem található a kiválasztott játék",
+          variant: "destructive",
+        });
+        return state;
+      }
+      
+      const odds = game.odds[currentBet.selectedParticipantId];
+      const winnings = Math.round(currentBet.amount * odds);
+      const participantName = game.participants.find(
+        (p) => p.id === currentBet.selectedParticipantId
+      )?.name || "Ismeretlen";
+      
+      toast({
+        title: "Sikeres fogadás",
+        description: `Fogadást tettél: ${participantName} csapatra ${currentBet.amount} pontért. Potenciális nyeremény: ${winnings} pont.`,
+      });
+      
+      return {
+        ...state,
+        userStats: {
+          ...state.userStats,
+          points: state.userStats.points - currentBet.amount,
+        },
+        currentBet: {
+          gameId: undefined,
+          selectedParticipantId: undefined,
+          amount: currentBet.amount,
+        },
+      };
+    }),
 }));

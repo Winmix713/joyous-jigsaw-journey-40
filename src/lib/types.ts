@@ -23,7 +23,26 @@ export interface Team {
   name: string;
   image?: string;
   recentForm?: string[]; // pl.: ['W', 'L', 'W']
-  stats?: Record<string, number | string>; // szebb TypeScript forma
+  stats?: Record<string, number | string>;
+}
+
+export interface Game {
+  id: string;
+  title: string;
+  description: string;
+  image?: string;
+  status: 'upcoming' | 'live' | 'completed';
+  startTime: string; // ISO string
+  endTime?: string;
+  category: 'sport' | 'esport' | string;
+  participants: {
+    id: string;
+    name: string;
+    isPopular?: boolean;
+  }[];
+  odds: Record<string, number>;
+  minBet: number;
+  maxBet: number;
 }
 
 export interface Tip {
@@ -83,37 +102,6 @@ export interface TipHistory {
   potentialReturn: number;
 }
 
-export interface Tipster {
-  id: string;
-  username: string;
-  tipId: string;
-  tipTitle: string;
-  stake: number;
-  return: number;
-  timestamp: string; // ISO string
-  successRate: number;
-  expertise: string[];
-}
-
-export interface Game {
-  id: string;
-  title: string;
-  description: string;
-  image?: string;
-  status: 'upcoming' | 'live' | 'completed';
-  startTime: string; // ISO string
-  endTime?: string;
-  category: 'sport' | 'esport' | string;
-  participants: {
-    id: string;
-    name: string;
-    isPopular?: boolean;
-  }[];
-  odds: Record<string, number>;
-  minBet: number;
-  maxBet: number;
-}
-
 export interface RecentWinner {
   id: string;
   username: string;
@@ -121,4 +109,30 @@ export interface RecentWinner {
   timestamp: string;
   amount: number;
   winningAmount: number;
+}
+
+export interface CurrentBet {
+  gameId?: string;
+  selectedParticipantId?: string;
+  amount: number;
+}
+
+export interface AppState {
+  isDarkMode: boolean;
+  toggleDarkMode: () => void;
+  
+  userStats: {
+    points: number;
+    winRate: number;
+    notifications: Notification[];
+  };
+  
+  markNotificationAsRead: (id: string) => void;
+  
+  games: Game[];
+  recentWinners: RecentWinner[];
+  
+  currentBet: CurrentBet;
+  setCurrentBet: (data: Partial<CurrentBet>) => void;
+  placeBet: () => void;
 }
